@@ -17,6 +17,7 @@ export default function Home() {
   const [editCategory, setEditCategory] = useState(false)
   const [postBook, setPostBook] = useState(false)
   const [editBook, setEditBook] = useState(false)
+  const [error, setError] = useState(false)
   const url = 'https://stormy-ravine-08943-eddafa52ea6f.herokuapp.com/api/'
   const header = {
     'content-type': 'application/json',
@@ -28,7 +29,7 @@ export default function Home() {
     const urls = url + 'categories'
     const headers = {
       'content-type': 'application/json',
-      Authorization: `Bearer 1|TYqYmNP87QMr8FunFuGpqLGrwFJDCuMCAr0ByVFU`
+      Authorization: `Bearer 70|S0szjdEjTwEFjt9D4gu0Qr66bgpruivVYuUgnWid`
     }
     axios.get(urls, {headers: headers}).then((response) => {
       setCategories(response.data)
@@ -49,7 +50,9 @@ export default function Home() {
       password: document.getElementsByClassName('form-control')[2].value
     }
     axios.post(urls, data, {headers: header}).then((response) => {
-      setAuth(response.data.access_token)
+      response.data.access_token ? setAuth(response.data.access_token) : setError(true)
+    }, (err) => {
+      setError(true)
     })
   }
 
@@ -168,12 +171,23 @@ export default function Home() {
     })
   }
 
+  function logout(){
+    const urls = url + 'logout'
+    axios.post(urls, {}, {headers: header}).then((response) => {
+      alert(response.data.message)
+      setAuth(false)
+    }, (err) => {
+      console.log(error)
+    })
+  }
+
   // styling
   const logins = {top: '14vh',left: '10vw',zIndex: '2',position: 'fixed',width: '80vw', boxShadow: 'rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px', borderRadius: '20px'}
 
 
   return (
     <div style={{backgroundColor: 'black'}}>
+      { auth ? <button onClick={() => logout()} style={{borderColor: 'red',right: '10px', textAlign: 'center', bottom: '10px',zIndex: '2', height: '60px', width: '60px', position: 'fixed', backgroundColor: 'red', color: 'white', borderRadius: '50%'}}>logout</button> : ''}
       {postBook ? 
       (<div style={{backgroundColor: 'black', color: 'white', height: '100vh', width: '100vw', position: 'relative', top: '0', zIndex: '3'}}>
         <div className="card text-bg-light mx-auto">
@@ -285,12 +299,13 @@ export default function Home() {
           </div>
           <button onClick={() => authorize()} type="submit" className="w-100 btn" style={{borderRadius: '20px', borderColor: 'skyblue'}}><h5 style={{margin: 'auto'}}>{ login ? "Log in" : "Sign up" }</h5></button>
           <div className="mb-3">
-            <div style={{color: 'red'}}>The data entered is incorrect
+            <div style={{color: 'red'}}>{error ? 'The data entered is incorrect' : ''}
             </div>
-            <div id="emailHelp" className="form-text" style={{ 'display': login ? 'none': ''}}>{ login ? "Does not have account? create right now" : "Already have account? Login now"}</div>
+            {/* <div id="emailHelp" className="form-text" style={{ 'display': login ? 'none': ''}}>{ login ? "Does not have account? create right now" : "Already have account? Login now"}</div> */}
             { !login ? '' :
-              <button onClick={() =>setLogin(false)} className="w-100 btn mt-3" style={{borderRadius: '20px', borderColor: 'skyblue'}}><h5 style={{margin: 'auto'}}>Sign up</h5></button>
+              <button onClick={() => {setLogin(false); setError(false)}} className="w-100 btn mt-3" style={{borderRadius: '20px', borderColor: 'skyblue'}}><h5 style={{margin: 'auto'}}>Sign up</h5></button>
             }
+            <div style={{height: '18vh'}}></div>
           </div>
         </div>
       </div>
